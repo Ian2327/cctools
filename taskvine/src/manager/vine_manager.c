@@ -1965,7 +1965,9 @@ static struct rmsummary *category_alloc_info(struct vine_manager *q, struct cate
 
 	/* XXX this seems like a hack: a vine_worker is being created by malloc instead of vine_worker_create */
 
-	struct vine_worker_info *w = malloc(sizeof(*w));
+	struct link *link = link_accept(q->manager_link, time(0) + q->short_timeout);
+	struct vine_worker_info *w = vine_worker_create(link);
+	// struct vine_worker_info *w = malloc(sizeof(*w));
 	w->resources = vine_resources_create();
 	w->resources->cores.total = q->current_max_worker->cores;
 	w->resources->memory.total = q->current_max_worker->memory;
@@ -1974,6 +1976,7 @@ static struct rmsummary *category_alloc_info(struct vine_manager *q, struct cate
 
 	struct rmsummary *allocation = vine_manager_choose_resources_for_task(q, w, t);
 
+	
 	vine_task_delete(t);
 	vine_resources_delete(w->resources);
 	free(w);
